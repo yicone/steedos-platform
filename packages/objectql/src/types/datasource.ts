@@ -101,9 +101,14 @@ export class SteedosDataSourceType implements Dictionary {
         objectConfig.name = object_name
         let config: SteedosObjectTypeConfig = {fields: {}}
         let baseObject = this.getObject('base');
-        if(this.driver === SteedosDatabaseDriverType.MeteorMongo && baseObject){
-            let {triggers: baseTriggers, fields: basefields, permission_set, actions: baseActions, list_views: baseListViews} = baseObject.toConfig()
-            config = util.extend(config, {triggers: baseTriggers}, {actions: baseActions} ,{actions: baseListViews} ,{permission_set: permission_set},objectConfig, {fields: basefields}, objectConfig)
+        if((this.driver === SteedosDatabaseDriverType.MeteorMongo || this.driver === SteedosDatabaseDriverType.Mongo) && baseObject){
+            let {triggers: baseTriggers, fields: basefields, listeners: baseListeners, permission_set, actions: baseActions, list_views: baseListViews} = baseObject.toConfig()
+            if(this.driver === SteedosDatabaseDriverType.MeteorMongo){
+                config = util.extend(config, {triggers: baseTriggers}, {actions: baseActions} ,{actions: baseListViews} ,{permission_set: permission_set},objectConfig, {fields: basefields}, objectConfig)
+            }else{
+                config = util.extend(config, {listeners: baseListeners}, {actions: baseActions} ,{actions: baseListViews} ,{permission_set: permission_set},objectConfig, {fields: basefields}, objectConfig)
+            }
+            
         }else{
             config = objectConfig
         }
@@ -168,13 +173,15 @@ export class SteedosDataSourceType implements Dictionary {
             this._adapter = config.driver
         }
 
-        if(config.driver === SteedosDatabaseDriverType.MeteorMongo){
+        if(config.driver === SteedosDatabaseDriverType.MeteorMongo || config.driver === SteedosDatabaseDriverType.Mongo){
             let standardObjectsDir = path.dirname(require.resolve("@steedos/standard-objects"))
             if(standardObjectsDir){
                 let baseObject = util.loadFile(path.join(standardObjectsDir, "base.object.yml"))
                 this.setObject(baseObject.name, baseObject)
                 let baseObjectTrigger = util.loadFile(path.join(standardObjectsDir, "base.trigger.js"))
                 this.setObjectListener(baseObjectTrigger)
+                let baseObjectSharingTrigger = util.loadFile(path.join(standardObjectsDir, "base.sharing.trigger.js"))
+                this.setObjectListener(baseObjectSharingTrigger)
             }
         }
 

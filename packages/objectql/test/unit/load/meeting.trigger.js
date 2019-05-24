@@ -60,6 +60,8 @@ module.exports = {
     var doc = this.doc
     var clashs, room, start, end;
 
+    console.log('beforeUpdate this', this);
+
     if(doc.start || doc.end){
 
       var currentDoc = await this.getObject('meeting').findOne(this.id, {fields: ['room', 'start', 'end']})

@@ -5,6 +5,8 @@ module.exports = {
     listenTo: 'base',
   
     beforeInsert: function(userId, doc) {
+        var doc = this.doc
+        var userId = this.userId
         doc.created = new Date();
         doc.modified = new Date();
         if (userId) {
@@ -19,6 +21,8 @@ module.exports = {
         }
     },
     beforeUpdate:  function(userId, doc, fieldNames, modifier, options) {
+        var modifier = {$set: this.doc}
+        var userId = this.userId
         modifier.$set = modifier.$set || {};
         modifier.$set.modified = new Date();
         if (userId) {

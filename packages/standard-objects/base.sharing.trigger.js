@@ -4,9 +4,15 @@ module.exports = {
 
     listenTo: 'base',
 
-    afterInsert: function (userId, doc, fieldNames, modifier, options) {
+    afterInsert: async function () {
+        
         var collection, obj, object_name, psCollection, psRecords, selector;
         object_name = this.object_name;
+
+        var doc = await this.getObject(object_name).findOne(this.id)
+
+        console.log('afterInsert doc', doc)
+
         obj = Creator.getObject(object_name);
         if (obj.enable_share) {
             collection = Creator.getCollection(object_name);
@@ -52,9 +58,11 @@ module.exports = {
         }
     },
 
-    afterUpdate: function (userId, doc, fieldNames, modifier, options) {
+    afterUpdate: async function () {
         var collection, obj, object_name, psCollection, psRecords, selector;
         object_name = this.object_name;
+        var doc = await this.getObject(object_name).findOne(this.id)
+        console.log('afterUpdate doc', doc)
         obj = Creator.getObject(object_name);
         if (obj.enable_share) {
             collection = Creator.getCollection(object_name);

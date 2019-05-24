@@ -1,0 +1,12 @@
+name: meeting
+label: 会议
+icon: event
+enable_search: true
+fields:
+  name:
+    label: 会议标题
+    type: text
+    is_wide: true
+    required: true
+    name: name
+    searchable: true

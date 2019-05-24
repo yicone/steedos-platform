@@ -4,6 +4,7 @@ import _ = require("underscore");
 import { SteedosTriggerTypeConfig, SteedosTriggerContextConfig } from "./trigger";
 import { SteedosQueryOptions } from "./query";
 import { SteedosDataSourceType, SteedosDatabaseDriverType } from "./datasource";
+import clone = require('clone')
 
 abstract class SteedosObjectProperties {
     name?: string
@@ -223,6 +224,7 @@ export class SteedosObjectType extends SteedosObjectProperties {
     }
 
     registerTrigger(trigger: SteedosTriggerType) {
+        console.log('registerTrigger', this.name, trigger);
         //如果是meteor mongo 则不做任何处理
         if(!_.isString(this._datasource.driver) || this._datasource.driver != SteedosDatabaseDriverType.MeteorMongo){
             if (!this._triggersQueue[trigger.when]) {
@@ -237,7 +239,7 @@ export class SteedosObjectType extends SteedosObjectProperties {
     }
 
     private async runTirgger(trigger: SteedosTriggerType, context: SteedosTriggerContextConfig) {
-        let object_name = this.name
+        let object_name = `${this._datasource.name}.${this.name}`
         let event = trigger.todo
         let todoWrapper = async function () {
             // Object.setPrototypeOf(thisArg, Object.getPrototypeOf(trigger))
@@ -305,6 +307,13 @@ export class SteedosObjectType extends SteedosObjectProperties {
             config.triggers = {}
             _.each(this.triggers, (trigger: SteedosTriggerType, key: string)=>{
                 config.triggers[key] = trigger.toConfig();
+            })
+        }
+
+        if(this.listeners){
+            config.listeners = {}
+            _.each(this.listeners, (listener: SteedosListenerConfig, key: string)=>{
+                config.listeners[key] = clone(listener)
             })
         }
 
@@ -536,6 +545,7 @@ export class SteedosObjectType extends SteedosObjectProperties {
 
         if (method === 'insert' || method === 'update') {
             context.doc = args[args.length - 2]
+            console.log(method, context.doc);
         }
 
         if(when === 'after' && (method === 'update' || method === 'delete')){

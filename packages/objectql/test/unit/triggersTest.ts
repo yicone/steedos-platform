@@ -3,7 +3,8 @@ import { SteedosSchema } from '../../src';
 var path = require('path')
 
 describe('Test object triggers', () => {
-    let mySchema = new SteedosSchema({datasources: {default: {driver: 'mongo', url: 'mongodb://127.0.0.1/steedos', objectFiles: [path.resolve(__dirname, "./load")]}}})
+    let mySchema = new SteedosSchema({datasources: {default: {driver: 'mongo', url: 'mongodb://127.0.0.1/steedos', objectFiles: [path.resolve(__dirname, "./load2")]}}})
+    console.log(mySchema != null);
     it('beforeInsert', async () => {
         let meeting = mySchema.getObject('meeting');
         let beforeInsert = false
@@ -54,4 +55,12 @@ describe('Test object triggers', () => {
         await meeting.delete("test20190405")
         expect(beforeUpdate).to.equal(true)  && expect(beforeUpdateSetValue).to.equal(true) 
       })
+
+      it('afterInsert', async ()=>{
+
+        let meeting = mySchema.getObject('meeting');
+
+        await meeting.insert({_id: 'test20190404', name: 'test4', start: '2019-03-23T01:00:00.000Z', end: '2019-03-23T08:00:00.000Z'})
+      })
+
   });
